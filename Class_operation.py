@@ -9,7 +9,7 @@ from tkinter import *               #
 from PIL import Image, ImageTk      #
 
 # import class dependency
-
+import RPi.GPIO as GPIO
 import time
 import json
 
@@ -29,16 +29,18 @@ class Operation:
         self.readjson = {}
         self.model_dict = {}
         self.readjson_processing = {}
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(17,GPIO.OUT)
+        GPIO.output(17,False)
 
         PB_exit = Button(self.master_op, text="EXIT", fg="red", bg="black", command=self.EXIT_operation).place(
             x=1000, y=600, width=100, height=35)
         ######
-
         # main operation step
         self.read_json_file()
         self.model_init()
         self.cam_main = cv2.VideoCapture(0)
-        self.cam_main.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+        # self.cam_main.set(cv2.CAP_PROP_AUTOFOCUS, 1)
         self.Loop()
 
     def model_init(self):
@@ -100,9 +102,12 @@ class Operation:
         #     .format(class_names[np.argmax(score)], 100 * np.max(score))
         # )
     def draw_crop_func(self, img):
+        keep_result = []
+        keep_ml = []
         image_actual = img  
         # loop for ML
         for index_pos in range(len(self.readjson["codi_pos"])):
+            
             pos = self.readjson["codi_pos"][index_pos]
             croping = image_actual[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
@@ -120,14 +125,19 @@ class Operation:
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(img, str(
                     round(score_100, 2)), (pos[0], pos[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                keep_ml.append("ok")
             else:
                 image_actual = cv2.rectangle(image_actual, (pos[0], pos[1]),
                                                 (pos[2], pos[3]), (0, 0, 255), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(img, str(
                     round(score_100, 2)), (pos[0], pos[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                keep_ml.append("ng")
+        # print("keep ml: ",keep_ml)
         
+        #loop for image processing
         for index in range(len(self.readjson_processing["codi_pos"])):
+            
             pos_pr = self.readjson_processing["codi_pos"][index]
             croping_pr = image_actual[int(pos_pr[1]):int(
                 pos_pr[3]), int(pos_pr[0]):int(pos_pr[2])]
@@ -143,12 +153,20 @@ class Operation:
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(image_actual, str(
                     round(score_pro, 2)), (pos_pr[0], pos_pr[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                keep_result.append("ok")
             else:
                 image_actual = cv2.rectangle(image_actual, (pos_pr[0], pos_pr[1]),
                                              (pos_pr[2], pos_pr[3]), (0, 0, 255), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(image_actual, str(
                     round(score_pro, 2)), (pos_pr[0], pos_pr[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                keep_result.append("ng")
+        # print("keep processing: ",keep_result)
+        #output GPIO to PLC
+        if not(("ng" in keep_ml) or ("ng" in keep_result)):
+            GPIO.output(17,True)
+        else:
+            GPIO.output(17,False)
         return image_actual
 
     def Loop(self):

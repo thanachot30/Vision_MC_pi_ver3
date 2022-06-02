@@ -138,7 +138,8 @@ class AddModel:
         def crop_position_operation():
             # camera config
             cam = cv2.VideoCapture(0)
-            cam.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+            cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+            cam.set(28,200)
             if self.newProcessing_dict["name"] == None:
                 pass
             else:
@@ -282,7 +283,8 @@ class AddModel:
         def crop_position_operation():
             # camera config
             cam = cv2.VideoCapture(0)
-            cam.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+            cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+            cam.set(28,200)
             if self.newModel_dict["name"] == None:
                 pass
             else:

@@ -71,7 +71,7 @@ class Learning:
         self.read_json_file()
         self.mkdir_pos()
         self.cam_learning = cv2.VideoCapture(0)
-        self.cam_learning.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+        
         self.show_camera()
 
     def mkdir_pos(self):
