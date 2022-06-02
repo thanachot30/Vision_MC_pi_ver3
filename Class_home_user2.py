@@ -1,4 +1,5 @@
 from turtle import color
+import cv2
 import numpy as np
 from tkinter import *               #
 from tkinter import filedialog
@@ -8,9 +9,7 @@ from PIL import Image, ImageTk      #
 # import class dependency.
 from Class_AddModel import AddModel 
 from Class_operation import Operation
-#
 
-                #
 from functools import partial       #
 
 
@@ -35,8 +34,9 @@ class App:
                               ).pack()
         #   place(x=1050, y=600, width=150, height=35)
 
-        # Operation home page
-        operation = Operation(Toplevel(self.master))
+        # Operation home page# for Auto Mode
+        
+        # operation = Operation(Toplevel(self.master))
 
     def show_process_bar(self, get):
         # show component bar and percent of true

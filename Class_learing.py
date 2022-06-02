@@ -77,7 +77,7 @@ class Learning:
     def mkdir_pos(self):
         sub_folder = ["ok", "ng"]
         directory = "pos"
-        parent_dir = "/home/pi/Documents/Vision_MC_ver3/Vision_mc_ver3/data_new_model/"
+        parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
         for pos in range(len(self.ReadnewModel_dict["codi_pos"])):
             directory_pos = directory+str(pos+1)
             path = os.path.join(parent_dir, directory_pos)
@@ -95,7 +95,7 @@ class Learning:
                 os.mkdir(path_sub)
 
     def model_learing(self):
-        parent_dir = "/home/pi/Documents/Vision_MC_ver3/Vision_mc_ver3/data_new_model/"
+        parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
         file_list = listdir(parent_dir)
         print(file_list)
         for j in file_list:
@@ -165,8 +165,8 @@ class Learning:
                     1./255, input_shape=(img_height, img_width, 3)),
                 layers.Conv2D(16, 3, padding='same', activation='relu'),
                 layers.MaxPooling2D(),
-                # layers.Conv2D(32, 3, padding='same', activation='relu'),
-                # layers.MaxPooling2D(),
+                layers.Conv2D(32, 3, padding='same', activation='relu'),
+                layers.MaxPooling2D(),
                 # layers.Conv2D(64, 3, padding='same', activation='relu'),
                 # layers.MaxPooling2D(),
                 layers.Dropout(0.2),
@@ -179,7 +179,7 @@ class Learning:
                               from_logits=True),
                           metrics=['accuracy'])
             # Train the model
-            epochs = 3
+            epochs = 10
             history = model.fit(
                 train_ds,
                 validation_data=val_ds,
@@ -207,7 +207,7 @@ class Learning:
             plt.legend(loc='upper right')
             plt.title('Training and Validation Loss')
             plt.show()
-            save_ml_path = "/home/pi/Documents/Vision_MC_ver3/Vision_mc_ver3/data_save_ml/model_" + \
+            save_ml_path = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/model_" + \
                 str(j)+".h5"
             model.save(save_ml_path)
             print("finish save model")
@@ -230,7 +230,7 @@ class Learning:
                     pos[3]), int(pos[0]):int(pos[2])]
                 resize_crop = cv2.resize(croping, (50, 50))
                 # part of access file
-                path_to_pos = "/home/pi/Documents/Vision_MC_ver3/Vision_mc_ver3/data_new_model/pos" + \
+                path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/pos" + \
                     str(index_pos+1)+"/ok/"
                 len_actual_image = len(listdir(path_to_pos))
                 path_save_image = path_to_pos+"pos" + \
@@ -243,7 +243,7 @@ class Learning:
                     pos[3]), int(pos[0]):int(pos[2])]
                 resize_crop = cv2.resize(croping, (50, 50))
                 # part of access file
-                path_to_pos = "/home/pi/Documents/Vision_MC_ver3/Vision_mc_ver3/data_new_model/pos" + \
+                path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/pos" + \
                     str(index_pos+1)+"/ng/"
                 len_actual_image = len(listdir(path_to_pos))
                 path_save_image = path_to_pos+"pos" + \
