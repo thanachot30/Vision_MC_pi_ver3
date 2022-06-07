@@ -1,11 +1,12 @@
 
 import cv2
-from matplotlib.pyplot import text
+from matplotlib.pyplot import grid, text
 from PIL import Image, ImageChops, ImageOps
 import math
 import numpy as np
 import tensorflow as tf
 from tkinter import *               #
+from tkinter import ttk
 from PIL import Image, ImageTk      #
 
 # import class dependency
@@ -24,6 +25,10 @@ class Operation:
         self.master_op.geometry("1280x720+0+0")
         self.frame1 = Frame(self.master_op)
         self.frame1.place(x=0, y=150)
+
+        self.frame_bar = Frame(self.master_op)
+        self.frame_bar.place(x=700,y=100)
+
         self.show_image = Label(self.frame1, width=640, height=480)
         self.show_image.pack()
         self.readjson = {}
@@ -39,6 +44,7 @@ class Operation:
         # main operation step
         self.read_json_file()
         self.model_init()
+        self.show_bar()
         self.cam_main = cv2.VideoCapture(0)
         # self.cam_main.set(cv2.CAP_PROP_AUTOFOCUS, 1)
         self.Loop()
@@ -107,7 +113,6 @@ class Operation:
         image_actual = img  
         # loop for ML
         for index_pos in range(len(self.readjson["codi_pos"])):
-            
             pos = self.readjson["codi_pos"][index_pos]
             croping = image_actual[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
@@ -137,7 +142,6 @@ class Operation:
         
         #loop for image processing
         for index in range(len(self.readjson_processing["codi_pos"])):
-            
             pos_pr = self.readjson_processing["codi_pos"][index]
             croping_pr = image_actual[int(pos_pr[1]):int(
                 pos_pr[3]), int(pos_pr[0]):int(pos_pr[2])]
@@ -210,6 +214,27 @@ class Operation:
             self.readjson_processing = json.load(f_processing)
         print("JSON FILE PROCESSING: ", self.readjson_processing)
         return
+
+    def show_bar(self):
+            start_row = 2
+            list_ml = self.readjson["codi_pos"]
+            list_processing = self.readjson_processing["codi_pos"]
+            for ml_bar in list_ml:
+                tag_ml = Label(self.frame_bar,text=str(ml_bar),fg="black",bg="gray").grid(row=start_row,column=0)
+                ml_bar = Scale(self.frame_bar, from_=0,to=100,length=300,orient=HORIZONTAL).grid(row=start_row,column=1)
+                start_row = start_row + 1
+            # add for separate section 
+            start_row = start_row + 1
+            Label(self.frame_bar,text="Processing",bg="white").grid(row=start_row,column=0)
+            Label(self.frame_bar,text=" ").grid(row=start_row,column=1)
+
+            for pro_bar in list_processing:
+                start_row = start_row + 1
+                tag_process = Label(self.frame_bar,text=str(pro_bar),fg="black",bg="white").grid(row=start_row,column=0)
+                var = DoubleVar()
+                pro_bar = Scale(self.frame_bar, from_=0,to=100,length=300,orient=HORIZONTAL)
+                pro_bar.set(50)
+                pro_bar.grid(row=start_row,column=1)
 
     def EXIT_operation(self):
         self.master_op.destroy()

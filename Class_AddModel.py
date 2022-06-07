@@ -32,7 +32,6 @@ class AddModel:
         self.x_start, self.y_start, self.x_end, self.y_end = 0, 0, 0, 0
         self.oriImage = None
         
-        
         # dictionary model
         self.newModel_dict = {
             "name": None,
@@ -42,7 +41,8 @@ class AddModel:
         self.newProcessing_dict = {
             "name": None,
             "num_pos": None,
-            "codi_pos": []
+            "codi_pos": [],
+            "threshold": []
         }
         #
         PB_exit_addModel = Button(self.master_add, text="EXIT", fg="red", bg="black", command=self.EXIT_AddModel).place(
@@ -172,13 +172,13 @@ class AddModel:
                         cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
                         cam.set(28,200)
 
-                # cam.release()
+               
                 cv2.destroyAllWindows()
                 cam.release()
-
+                # save crop codinate position
                 self.newProcessing_dict["codi_pos"].append(
-                    [self.x_start, self.y_start, self.x_end, self.y_end])
-
+                    [self.x_start, self.y_start, self.x_end, self.y_end,70])
+                
             # show image croped on GUI
             show = draw_crop_func(
                 self.newProcessing_dict["codi_pos"], self.image_save.copy())

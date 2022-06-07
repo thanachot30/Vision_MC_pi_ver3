@@ -31,4 +31,18 @@ TO DO LIST
 2.debuging program
 3.gather screen
 4.signal io or IP Lan comunication
+5.input parameter such as 
+    5.1 length focus
+    5.2 number eporc ml
+    5.3 bar set threshold gain of processing ok ng
+    5.4 bar display percentage of result
+    5.5 over all ok ng of result
 
+
+
+
+6.extention
+    6.1 Numbered bookmark
+    6.2 code formatter
+    6.3 color hightlight
+    6.4

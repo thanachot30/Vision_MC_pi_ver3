@@ -1,4 +1,2 @@
-1.zoom image
-2.output io rpi
-3.integration 4 screen
-4.test useability time work
+
+
