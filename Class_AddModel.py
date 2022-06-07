@@ -31,6 +31,8 @@ class AddModel:
         self.cropping = False
         self.x_start, self.y_start, self.x_end, self.y_end = 0, 0, 0, 0
         self.oriImage = None
+        
+        
         # dictionary model
         self.newModel_dict = {
             "name": None,
@@ -90,7 +92,7 @@ class AddModel:
             print(path_to_save)
             cv2.imwrite(path_to_save, resize_crop)
         return
-
+    #function for only image processing
     def get_processing(self):
         try:
             for widget in self.frame1.winfo_children():
@@ -140,6 +142,8 @@ class AddModel:
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
             cam.set(28,200)
+            # set mouse call back
+            
             if self.newProcessing_dict["name"] == None:
                 pass
             else:
@@ -148,32 +152,36 @@ class AddModel:
                 while True:
                     check, frame = cam.read()
                     if check:
-                        image = frame
-                        self.oriImage = image.copy()
-                        self.image_save = image.copy()
-                        self.image_copy = image.copy()
+                        image = frame.copy()
+                        self.oriImage = frame.copy()
+                        self.image_save = frame.copy()
+                        self.image_copy = frame.copy()  
                         if not self.cropping:
                             cv2.imshow("image", image)
                         elif self.cropping:
                             cv2.rectangle(self.image_copy, (self.x_start, self.y_start),
-                                          (self.x_end, self.y_end), (255, 0, 0), 2)
+                                          (self.x_end, self.y_end), (0, 0, 255), 2)
                             cv2.imshow("image", self.image_copy)
                         k = cv2.waitKey(1)
                         if k == ord('q'):
                             break
-
                     # add crop position to dict model
                     else:
                         print("check:", check)
+                        cam = cv2.VideoCapture(0)
+                        cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+                        cam.set(28,200)
+
                 # cam.release()
                 cv2.destroyAllWindows()
+                cam.release()
 
                 self.newProcessing_dict["codi_pos"].append(
                     [self.x_start, self.y_start, self.x_end, self.y_end])
 
             # show image croped on GUI
             show = draw_crop_func(
-                self.newProcessing_dict["codi_pos"], self.image_copy.copy())
+                self.newProcessing_dict["codi_pos"], self.image_save.copy())
             # show list for component
             show_list_position()
             resize_image = cv2.resize(show, (640, 480))
@@ -205,7 +213,7 @@ class AddModel:
                 widget_list.destroy()
 
             show = draw_crop_func(
-                self.newProcessing_dict["codi_pos"], self.image_copy.copy())
+                self.newProcessing_dict["codi_pos"], self.image_save.copy())
             # show list for component
             show_list_position()
             # show picture
@@ -294,8 +302,9 @@ class AddModel:
                     check, frame = cam.read()
                     if check:
                         image = frame
-                        self.oriImage = image.copy()
-                        self.i = image.copy()
+                        self.oriImage = frame.copy()
+                        self.image_save = frame.copy()
+                        self.i = frame.copy()
                         if not self.cropping:
                             cv2.imshow("image", image)
                         elif self.cropping:
@@ -311,13 +320,14 @@ class AddModel:
                         print("check:", check)
                 # cam.release()
                 cv2.destroyAllWindows()
+                cam.release()
 
                 self.newModel_dict["codi_pos"].append(
                     [self.x_start, self.y_start, self.x_end, self.y_end])
 
             # show image croped on GUI
             show = draw_crop_func(
-                self.newModel_dict["codi_pos"], self.i.copy())
+                self.newModel_dict["codi_pos"], self.image_save.copy())
             # show list for component
             show_list_position()
 
@@ -348,7 +358,7 @@ class AddModel:
                 widget_list.destroy()
             # .............
             show = draw_crop_func(
-                self.newModel_dict["codi_pos"], self.i.copy())
+                self.newModel_dict["codi_pos"], self.image_save.copy())
             # show list for component
             show_list_position()
             # show picture
