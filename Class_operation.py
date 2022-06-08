@@ -16,7 +16,6 @@ import json
 
 from os import listdir
 
-
 class Operation:
     def __init__(self, master):
         self.master_op = master
@@ -210,6 +209,7 @@ class Operation:
             self.readjson = json.load(f)
         print("JSON FILE: ", self.readjson)
         # read for NewDataProcessing.json file
+
         with open('NewDataProcessing.json') as f_processing:
             self.readjson_processing = json.load(f_processing)
         print("JSON FILE PROCESSING: ", self.readjson_processing)
@@ -243,14 +243,27 @@ class Operation:
         if isinstance(w, Scale):
             getScale = w.get()
             getScaleLabel = w.cget("label") 
-            print(w.get())
-            print(w.cget("label"))
+            # print(w.get())
+            print("slide:",w.cget("label"))
             # change index 4 adjust threshold in self.readjson_processing["codi_pos"]
                 # convert string list to int list
             getScaleLabel = ast.literal_eval(getScaleLabel)
             find_index = self.readjson_processing["codi_pos"].index(getScaleLabel)
-            print(find_index)
+            # print(find_index)
+            # next to edit
+            listEdit = self.readjson_processing["codi_pos"][find_index]
+            listEdit[4] = int(getScale)
+            print(listEdit)
+
+        # save json update json file
+        with open('NewDataProcessing.json', 'w') as json_file_update:
+        # เขียน Python Dict ลงในไฟล์ NewDataProcessing.json
+            json.dump(self.readjson_processing, json_file_update)
+        # go to read json
+        self.read_json_file()
         return
 
     def EXIT_operation(self):
         self.master_op.destroy()
+        self.cam_main.release()
+
