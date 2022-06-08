@@ -219,8 +219,8 @@ class Operation:
             start_row = 2
             list_ml = self.readjson["codi_pos"]
             list_processing = self.readjson_processing["codi_pos"]
-            for ml_bar in list_ml:
-                tag_ml = Label(self.frame_bar,text=str(ml_bar),fg="black",bg="gray").grid(row=start_row,column=0)
+            for ml_pos in list_ml:
+                tag_ml = Label(self.frame_bar,text=str(ml_pos),fg="black",bg="gray").grid(row=start_row,column=0)
                 ml_bar = Scale(self.frame_bar, from_=0,to=100,length=300,orient=HORIZONTAL).grid(row=start_row,column=1)
                 start_row = start_row + 1
             # add for separate section 
@@ -228,13 +228,29 @@ class Operation:
             Label(self.frame_bar,text="Processing",bg="white").grid(row=start_row,column=0)
             Label(self.frame_bar,text=" ").grid(row=start_row,column=1)
 
-            for pro_bar in list_processing:
+            for process_pos in list_processing:
                 start_row = start_row + 1
-                tag_process = Label(self.frame_bar,text=str(pro_bar),fg="black",bg="white").grid(row=start_row,column=0)
-                var = DoubleVar()
-                pro_bar = Scale(self.frame_bar, from_=0,to=100,length=300,orient=HORIZONTAL)
-                pro_bar.set(50)
-                pro_bar.grid(row=start_row,column=1)
+                tag_process = Button(self.frame_bar,text=process_pos,fg="black",bg="white").grid(row=start_row,column=0)
+                name = str(process_pos)
+                self.pro_bar = Scale(self.frame_bar, from_=0,to=100,length=300,label=name,orient=HORIZONTAL)
+                self.pro_bar.bind("<ButtonRelease-1>",self.updateValue)
+                # pro_bar.set(process_pos[4])
+                self.pro_bar.grid(row=start_row,column=1)
+
+    def updateValue(self,event):
+        import ast
+        w = event.widget
+        if isinstance(w, Scale):
+            getScale = w.get()
+            getScaleLabel = w.cget("label") 
+            print(w.get())
+            print(w.cget("label"))
+            # change index 4 adjust threshold in self.readjson_processing["codi_pos"]
+                # convert string list to int list
+            getScaleLabel = ast.literal_eval(getScaleLabel)
+            find_index = self.readjson_processing["codi_pos"].index(getScaleLabel)
+            print(find_index)
+        return
 
     def EXIT_operation(self):
         self.master_op.destroy()
