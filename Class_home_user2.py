@@ -9,7 +9,6 @@ from PIL import Image, ImageTk      #
 # import class dependency.
 from Class_AddModel import AddModel 
 from Class_operation import Operation
-
 from functools import partial       #
 
 
@@ -27,11 +26,10 @@ class App:
         PB_add_model = Button(self.master, text="ADD", fg="black", font=16, bg="yellow", command=self.add_model
                               ).pack()
         #   place(x=1050, y=500, width=150, height=35)
-        PB_setting = Button(self.master, text="SETTING", fg="black", font=16, bg="yellow", command=self.setting
-                            ).pack()
         # place(x=1050, y=550, width=150, height=35)
         PB_operation = Button(self.master, text="OPERATION", fg="black", font=16, bg="yellow", command=self.operation
                               ).pack()
+        PB_exit= Button(self.master, text="EXIT", fg="red", bg="black", command=self.exit).pack()
         #   place(x=1050, y=600, width=150, height=35)
 
         # Operation home page# for Auto Mode
@@ -71,6 +69,9 @@ class App:
     def setting(self):
         print("seting")
 
+    def exit(self):
+        cv2.destroyAllWindows()
+        self.master.destroy()
 
 def main():
     root = Tk()

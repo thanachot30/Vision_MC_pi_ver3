@@ -37,6 +37,7 @@ class Operation:
         GPIO.setup(17,GPIO.OUT)
         GPIO.output(17,False)
 
+        Label(self.master_op, text="PROCESSING",fg="red",bg="yellow",font=("Arial",20)).place(x=200,y=110)
         PB_exit = Button(self.master_op, text="EXIT", fg="red", bg="black", command=self.EXIT_operation).place(
             x=1000, y=600, width=100, height=35)
         ######
@@ -49,46 +50,51 @@ class Operation:
         self.Loop()
 
     def model_init(self):
-        parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/"
-        file_list = listdir(parent_dir)
-        for index_model in range(len(file_list)):
-            path_model = parent_dir+"model_pos" + \
-                str(index_model+1)+".h5"
+        for ml_list in self.readjson["codi_pos"]:
+            data_pos_string = ' '.join(map(str, ml_list))
+            parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/"
+            path_model = parent_dir+ data_pos_string +".h5"
             load_model = tf.keras.models.load_model(path_model)
-            self.model_dict["pos"+str(index_model+1)] = load_model
-            print("init model"+"pos"+str(index_model+1))
+            self.model_dict[data_pos_string] = load_model
+            print("init model: "+str(data_pos_string))
+
         return
     def rmsdiff(self, im1, im2):
         """Calculates the root mean square error (RSME) between two images"""
         errors = np.asarray(ImageChops.difference(im1, im2)) / 255
         return math.sqrt(np.mean(np.square(errors)))
 
-    def processing_ok_ng(self, image_crop, index_pos):
+    def processing_ok_ng(self, image_crop, index_pos, threshold):
         class_names = ["ng", "ok"]
         path_read_image_master = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/"
         #
         image_actual = image_crop
         index = index_pos+1
+        threshold_img = threshold
         #
         master_img = Image.open(
             path_read_image_master+"image"+str(index)+".jpg")
+        master_img = ImageOps.grayscale(master_img)
         master_img = ImageOps.equalize(master_img, mask=None)
+        # master_img.save("/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/hist_Master"+str(index)+".jpg")
         # image_actual convert to PIL image"im_pil"==image_actual
         im_pil = Image.fromarray(image_actual)
+        im_pil = ImageOps.grayscale(im_pil)
         im_pil = ImageOps.equalize(im_pil, mask=None)
-        # add rmsdiff
+        # im_pil.save("/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/hist_actual"+str(index)+".jpg")
+        # add rmsdiff root mean sqe error
         result = self.rmsdiff(master_img, im_pil)
         resual = 100 -(result*100)
-        return "ok" if resual >= 70.0 else "ng", resual
+        return "ok" if resual >= threshold_img else "ng", resual
     
-    def predict_ok_ng(self,image_crop, index_pos):
+    def predict_ok_ng(self,image_crop, pos):
+        data_pos_string = ' '.join(map(str, pos))
         class_names = ["ng", "ok"]
         batch_size = 32
         img_height = 50
         img_width = 50
         image_actual = image_crop
-        model_number = index_pos+1
-        model = self.model_dict["pos"+str(model_number)]
+        model = self.model_dict[data_pos_string]
         # image and preprocessing,size and type to array
         img_array = tf.keras.utils.img_to_array(image_actual)
         img_array = tf.expand_dims(img_array, 0)  # Create a batch
@@ -121,7 +127,7 @@ class Operation:
                 "pos"+str(index_pos+1)), resize_crop)
             # send to func ML return to (okng,precentage)
             predict_result, score_100 = self.predict_ok_ng(
-                resize_crop, index_pos)
+                resize_crop, pos)
 
             if predict_result == "ok":
                 image_actual = cv2.rectangle(image_actual, (pos[0], pos[1]),
@@ -142,6 +148,8 @@ class Operation:
         #loop for image processing
         for index in range(len(self.readjson_processing["codi_pos"])):
             pos_pr = self.readjson_processing["codi_pos"][index]
+            # index 4 in pos_pr is threshold for ok,ng in iu slidebar adaptive 
+            pos_threshold = pos_pr[4]
             croping_pr = image_actual[int(pos_pr[1]):int(
                 pos_pr[3]), int(pos_pr[0]):int(pos_pr[2])]
             resize_crop_pr = cv2.resize(croping_pr, (50, 50))
@@ -149,7 +157,8 @@ class Operation:
                 "pos"+str(index+1)), resize_crop_pr)
             # send to processing iamge function
             result_processing, score_pro = self.processing_ok_ng(
-                resize_crop_pr, index)
+                resize_crop_pr, index, pos_threshold)
+
             if result_processing == "ok":
                 image_actual = cv2.rectangle(image_actual, (pos_pr[0], pos_pr[1]),
                                              (pos_pr[2], pos_pr[3]), (0, 255, 0), 2)

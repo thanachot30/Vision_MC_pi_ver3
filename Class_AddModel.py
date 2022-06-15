@@ -11,6 +11,7 @@ from PIL import Image, ImageTk      #
 
 # import class dependency
 from Class_learing import Learning
+from Class_EachLearning import EachLearning
 
 import os
 import sys                   #
@@ -29,9 +30,11 @@ class AddModel:
         self.master_add.geometry("1280x720+0+0")
 
         self.cropping = False
+        self.on_cam = False
         self.x_start, self.y_start, self.x_end, self.y_end = 0, 0, 0, 0
         self.oriImage = None
-        
+        self.show = None
+
         # dictionary model
         self.newModel_dict = {
             "name": None,
@@ -49,10 +52,9 @@ class AddModel:
             x=1000, y=600, width=100, height=35)
         PB_get_master = Button(self.master_add, text="GET MASTER", fg="yellow", bg="red", font=18, command=self.get_master).place(
             x=0, y=0, width=150, height=100)
-        PB_learing = Button(self.master_add, text="LEARING", fg="yellow", bg="red", font=18, command=self.learning).place(
-            x=170, y=0, width=150, height=100)
+
         PB_processing = Button(self.master_add, text="GET PROCESSING", fg="black", bg="#00FFFF", font=18, command=self.get_processing).place(
-            x=340, y=0, width=150, height=100)
+            x=170, y=0, width=150, height=100)
         #
         self.frame1 = Frame(
             self.master_add)
@@ -92,7 +94,7 @@ class AddModel:
             print(path_to_save)
             cv2.imwrite(path_to_save, resize_crop)
         return
-    #function for only image processing
+#function for only Image processing
     def get_processing(self):
         try:
             for widget in self.frame1.winfo_children():
@@ -127,7 +129,12 @@ class AddModel:
                 if len(refPoint) == 2:  # when two points were found
                     roi = self.oriImage[refPoint[0][1]:refPoint[1]
                                         [1], refPoint[0][0]:refPoint[1][0]]
-                    cv2.imshow("Cropped", roi)
+                    # cv2.imshow("Cropped", roi)
+                    # cv2.waitKey(1000)
+                    # cv2.destroyWindow("Cropped")
+                    self.on_cam = False
+                    print("gu crop")            
+            return
 
         def draw_crop_func(pos, img):
             image_croped = img
@@ -137,8 +144,9 @@ class AddModel:
                                              (i[2], i[3]), (0, 255, 0), 2)
             return image_croped
 
-        def crop_position_operation():
+        def crop_position_operation():            
             # camera config
+            self.on_cam = True
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
             cam.set(28,200)
@@ -162,9 +170,13 @@ class AddModel:
                             cv2.rectangle(self.image_copy, (self.x_start, self.y_start),
                                           (self.x_end, self.y_end), (0, 0, 255), 2)
                             cv2.imshow("image", self.image_copy)
+#fuck
                         k = cv2.waitKey(1)
-                        if k == ord('q'):
+                        if self.on_cam == False:
                             break
+                        elif k == ord('q'):
+                            break
+                        
                     # add crop position to dict model
                     else:
                         print("check:", check)
@@ -172,7 +184,6 @@ class AddModel:
                         cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
                         cam.set(28,200)
 
-               
                 cv2.destroyAllWindows()
                 cam.release()
                 # save crop codinate position
@@ -180,11 +191,11 @@ class AddModel:
                     [self.x_start, self.y_start, self.x_end, self.y_end,70])
                 
             # show image croped on GUI
-            show = draw_crop_func(
+            self.show = draw_crop_func(
                 self.newProcessing_dict["codi_pos"], self.image_save.copy())
             # show list for component
             show_list_position()
-            resize_image = cv2.resize(show, (640, 480))
+            resize_image = cv2.resize(self.show, (640, 480))
             resize_image = cv2.cvtColor(resize_image, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(resize_image)
             iago = ImageTk.PhotoImage(image)
@@ -192,6 +203,13 @@ class AddModel:
             show_image.image = iago
 
         def show_list_position():
+            list_pos = self.newProcessing_dict["codi_pos"]
+            # loop for delete same pos, from click
+            for k in list_pos:
+                if k[0] == k[2]:
+                    self.newProcessing_dict["codi_pos"].remove(k)
+                else:
+                    pass
             list_pos = self.newProcessing_dict["codi_pos"]
             start_row = 2
             for p in list_pos:
@@ -239,7 +257,9 @@ class AddModel:
         show_image = Label(self.frame1, width=640, height=480)
         show_image.pack()
 
+        
 
+# function for ML crop and save image 
     def get_master(self):
         try:
             for widget in self.frame1.winfo_children():
@@ -278,7 +298,9 @@ class AddModel:
                 if len(refPoint) == 2:  # when two points were found
                     roi = self.oriImage[refPoint[0][1]:refPoint[1]
                                         [1], refPoint[0][0]:refPoint[1][0]]
-                    cv2.imshow("Cropped", roi)
+                    # cv2.imshow("Cropped", roi)
+                    self.on_cam = False
+            return
 
         def draw_crop_func(pos, img):
             image_croped = img
@@ -290,6 +312,7 @@ class AddModel:
 
         def crop_position_operation():
             # camera config
+            self.on_cam = True
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
             cam.set(28,200)
@@ -312,7 +335,9 @@ class AddModel:
                                           (self.x_end, self.y_end), (255, 0, 0), 2)
                             cv2.imshow("image", self.i)
                         k = cv2.waitKey(1)
-                        if k == ord('q'):
+                        if self.on_cam == False:
+                            break
+                        elif k == ord('q'):
                             break
 
                     # add crop position to dict model
@@ -340,9 +365,15 @@ class AddModel:
 
         def show_list_position():
             list_pos = self.newModel_dict["codi_pos"]
+            for k in list_pos:
+                if k[0] == k[2]:
+                    self.newModel_dict["codi_pos"].remove(k)
+                else:
+                    pass
+            list_pos = self.newModel_dict["codi_pos"]
             start_row = 2
             for p in list_pos:
-                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow").grid(
+                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow",command=lambda p=p: self.each_learning(p)).grid(
                     row=start_row, column=0)
                 Button(self.fram_list_pos, text=p, fg="blue", bg="red", command=lambda p=p: delete_croped(p)).grid(
                     row=start_row, column=1)
@@ -389,31 +420,11 @@ class AddModel:
         show_image.pack()
 
 # Buton learning
-    def learning(self):
-        for widget in self.frame1.winfo_children():
-            widget.destroy()
-        for widget in self.fram_in_get_master.winfo_children():
-            widget.destroy()
-        for widget in self.fram_list_pos.winfo_children():
-            widget.destroy()
+    
 
-        learing_ope = Learning(self.master_add)
-    # def learning(self):
-    #     try:
-    #         for widget in self.frame1.winfo_children():
-    #             widget.destroy()
-    #         for widget in self.fram_in_get_master.winfo_children():
-    #             widget.destroy()
-    #         for widget in self.fram_list_pos.winfo_children():
-    #             widget.destroy()
-    #     except:
-    #         pass
-
-    #     show_image = Label(self.frame1, width=640, height=480)
-    #     show_image.pack()
-    #     title_learning = Label(self.frame1, text="IMAGE", font=(
-    #         "Ariel", 11), fg="yellow", bg="red",)
-    #     title_learning.pack()
+    def each_learning(self,data):
+        each_learning = EachLearning(self.master_add,data)
+    
 
     def EXIT_AddModel(self):
         cv2.destroyAllWindows()
