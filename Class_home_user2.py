@@ -6,13 +6,13 @@ from tkinter import filedialog
 from tkinter import ttk
 import tkinter.messagebox
 from PIL import Image, ImageTk      #
-# import class dependency.
+# import class dependency.      
 from Class_AddModel import AddModel 
 from Class_operation import Operation
 from functools import partial       #
 
 
-class App:
+class App: 
     def __init__(self, master):
         self.master = master
         self.master.title("ANTROBOTICS IMG")
@@ -20,7 +20,7 @@ class App:
         # self.master.geometry("1280x720+0+0")
 
         self.value_start = 20
-        self.num_comp = 0
+        self.num_comp = 0                                                                 
 
         # Button Add and seting
         PB_add_model = Button(self.master, text="ADD", fg="black", font=16, bg="yellow", command=self.add_model
