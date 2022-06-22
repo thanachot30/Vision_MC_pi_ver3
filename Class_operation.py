@@ -33,9 +33,10 @@ class Operation:
         self.readjson = {}
         self.model_dict = {}
         self.readjson_processing = {}
+        self.gpio_pi = 26
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17,GPIO.OUT)
-        GPIO.output(17,False)
+        GPIO.setup(self.gpio_pi,GPIO.OUT)
+        GPIO.output(self.gpio_pi,False)
 
         Label(self.master_op, text="PROCESSING",fg="red",bg="yellow",font=("Arial",20)).place(x=200,y=110)
         PB_exit = Button(self.master_op, text="EXIT", fg="red", bg="black", command=self.EXIT_operation).place(
@@ -176,9 +177,9 @@ class Operation:
         # print("keep processing: ",keep_result)
         #output GPIO to PLC
         if not(("ng" in keep_ml) or ("ng" in keep_result)):
-            GPIO.output(17,True)
+            GPIO.output(self.gpio_pi,True)
         else:
-            GPIO.output(17,False)
+            GPIO.output(self.gpio_pi,False)
         return image_actual
 
     def Loop(self):
