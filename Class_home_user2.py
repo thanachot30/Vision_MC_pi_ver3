@@ -4,7 +4,7 @@ import numpy as np
 from tkinter import *               #
 from tkinter import filedialog
 from tkinter import ttk
-import tkinter.messagebox
+import tkinter.font as font
 from PIL import Image, ImageTk      #
 # import class dependency.      
 from Class_AddModel import AddModel 
@@ -17,20 +17,24 @@ class App:
         self.master = master
         self.master.title("ANTROBOTICS IMG")
         # size of windown and position start
-        # self.master.geometry("1280x720+0+0")
-
+        # self.master.geometry("100x100+0+0")
         self.value_start = 20
         self.num_comp = 0                                                                 
-
+        self.width = 10
+        self.height= 2
+        myFont = font.Font(family='Courier',size=20,weight='bold')
         # Button Add and seting
-        PB_add_model = Button(self.master, text="ADD", fg="black", font=16, bg="yellow", command=self.add_model
-                              ).pack()
-        #   place(x=1050, y=500, width=150, height=35)
-        # place(x=1050, y=550, width=150, height=35)
-        PB_operation = Button(self.master, text="OPERATION", fg="black", font=16, bg="yellow", command=self.operation
-                              ).pack()
-        PB_exit= Button(self.master, text="EXIT", fg="red", bg="black", command=self.exit).pack()
-        #   place(x=1050, y=600, width=150, height=35)
+        PB_add_model = Button(self.master, text="ADD", fg="black",width=self.width,height=self.height, bg="yellow", command=self.add_model)
+        PB_add_model['font'] = myFont
+        PB_add_model.pack()
+        
+        PB_operation = Button(self.master, text="OPERATION", fg="black", font=100,width=self.width,height=self.height, bg="yellow", command=self.operation)
+        PB_operation['font'] = myFont
+        PB_operation.pack()
+
+        PB_exit= Button(self.master, text="EXIT", fg="red", bg="black",font=100,width=self.width,height=self.height, command=self.exit)
+        PB_exit['font'] = myFont
+        PB_exit.pack()
 
         # Operation home page# for Auto Mode
         

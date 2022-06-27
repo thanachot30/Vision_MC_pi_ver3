@@ -21,11 +21,13 @@ class EachLearning:
     def __init__(self, master,data):
         self.master_each = Toplevel(master)
         self.data_pos = data
+        self.screen_w = 1200
+        self.screen_h = 850
         # self.oldFram1 = canvas1
         # self.oldFram2 = canvas2
         # self.olfFram3 = canvas3
         self.master_each.title("Learning model")
-        self.master_each.geometry("1280x720+0+0")
+        self.master_each.geometry("1920x1080+0+0")
 
         print("IN Class learing")
         # init fram1 for use
@@ -33,13 +35,13 @@ class EachLearning:
         self.frame1.place(x=0, y=150)
         # init fram_ok_ng for PB
         self.fram_ok_ng = Frame(self.master_each)
-        self.fram_ok_ng.place(x=1000, y=150)
+        self.fram_ok_ng.place(x=1500, y=150)
         # init fram_image_ok_ng for image
         self.fram_img_small = Frame(self.master_each)
-        self.fram_img_small.place(x=780, y=150)
+        self.fram_img_small.place(x=1250, y=150)
 
         # init pack image on fram1
-        self.show_image = Label(self.frame1, width=640, height=480)
+        self.show_image = Label(self.frame1, width=self.screen_w, height=self.screen_h)
         self.show_image.pack()
 
         PB_ok = Button(self.fram_ok_ng, text="ADD OK", fg="black", bg="#9ACD32", command=self.get_ok
@@ -199,6 +201,9 @@ class EachLearning:
 
         epochs_range = range(epochs)
 
+        save_ml_path = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/" + data_pos_string +".h5"
+        model.save(save_ml_path)
+
         plt.figure(figsize=(8, 8))
         plt.subplot(1, 2, 1)
         plt.plot(epochs_range, acc, label='Training Accuracy')
@@ -212,11 +217,9 @@ class EachLearning:
         plt.legend(loc='upper right')
         plt.title('Training and Validation Loss')
         plt.show()
-        save_ml_path = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/" + data_pos_string +".h5"
-        model.save(save_ml_path)
         print("finish save model")
         return
-
+    
     def read_json_file(self):
         with open('NewData.json') as f:
             self.ReadnewModel_dict = json.load(f)
@@ -293,12 +296,14 @@ class EachLearning:
 
         if self.cam_learning.isOpened():
             check, self.Frame_raw = self.cam_learning.read()
+            self.Frame_raw = cv2.resize(self.Frame_raw,(self.screen_w,self.screen_h))
             self.Frame = self.Frame_raw.copy()
+            # self.Frame = cv2.resize(self.Frame,(self.screen_w,self.screen_h))
             # croping image position
             image_croped = draw_crop_func(
                 self.Frame, self.ReadnewModel_dict["codi_pos"])
             # image resize
-            image_croped = cv2.resize(image_croped, (640, 480))
+            image_croped = cv2.resize(image_croped, (self.screen_w, self.screen_h))
             resize = cv2.cvtColor(image_croped, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(resize)
             iago = ImageTk.PhotoImage(image)

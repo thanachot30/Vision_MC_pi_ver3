@@ -25,9 +25,11 @@ logger = logging.getLogger('ftpuploader')
 class AddModel:
     def __init__(self, master):
         self.master_add = master
+        self.screen_w = 1200
+        self.screen_h = 850
         self.master_add.title("Adding new model")
         # size of windown and position start
-        self.master_add.geometry("1280x720+0+0")
+        self.master_add.geometry("1920x1080+0+0")
 
         self.cropping = False
         self.on_cam = False
@@ -48,17 +50,17 @@ class AddModel:
             "threshold": []
         }
         #
-        PB_exit_addModel = Button(self.master_add, text="EXIT", fg="red", bg="black", command=self.EXIT_AddModel).place(
-            x=1000, y=600, width=100, height=35)
+        PB_exit_addModel = Button(self.master_add, text="EXIT", fg="red", bg="black",height=3,width=25, command=self.EXIT_AddModel).place(
+            x=1350, y=600, width=300, height=100)
         PB_get_master = Button(self.master_add, text="GET MASTER", fg="yellow", bg="red", font=18, command=self.get_master).place(
-            x=0, y=0, width=150, height=100)
+            x=0, y=0, width=300, height=100)
 
         PB_processing = Button(self.master_add, text="GET PROCESSING", fg="black", bg="#00FFFF", font=18, command=self.get_processing).place(
-            x=170, y=0, width=150, height=100)
+            x=300, y=0, width=300, height=100)
         #
         self.frame1 = Frame(
             self.master_add)
-        self.frame1.place(x=0, y=150)
+        self.frame1.place(x=0, y=100)
         # Opration
         self.read_json_file()
     def read_json_file(self):
@@ -103,10 +105,8 @@ class AddModel:
                 widget.destroy()
             for widget in self.fram_list_pos.winfo_children():
                 widget.destroy()
-
         except:
             pass
-
         def mouse_crop(event, x, y, flags, param):
             # grab references to the global variables
             # global x_start, y_start, x_end, y_end, cropping
@@ -149,7 +149,7 @@ class AddModel:
             self.on_cam = True
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-            cam.set(28,200)
+            cam.set(28,180)
             # set mouse call back
             
             if self.newProcessing_dict["name"] == None:
@@ -159,6 +159,7 @@ class AddModel:
                 cv2.setMouseCallback("image", mouse_crop)
                 while True:
                     check, frame = cam.read()
+                    frame = cv2.resize(frame,(self.screen_w,self.screen_h))
                     if check:
                         image = frame.copy()
                         self.oriImage = frame.copy()
@@ -176,7 +177,6 @@ class AddModel:
                             break
                         elif k == ord('q'):
                             break
-                        
                     # add crop position to dict model
                     else:
                         print("check:", check)
@@ -195,7 +195,7 @@ class AddModel:
                 self.newProcessing_dict["codi_pos"], self.image_save.copy())
             # show list for component
             show_list_position()
-            resize_image = cv2.resize(self.show, (640, 480))
+            resize_image = cv2.resize(self.show, (self.screen_w, self.screen_h))
             resize_image = cv2.cvtColor(resize_image, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(resize_image)
             iago = ImageTk.PhotoImage(image)
@@ -213,12 +213,12 @@ class AddModel:
             list_pos = self.newProcessing_dict["codi_pos"]
             start_row = 2
             for p in list_pos:
-                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow").grid(
+                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow",height=3,width=25).grid(
                     row=start_row, column=0)
-                Button(self.fram_list_pos, text=p, fg="blue", bg="red", command=lambda p=p: delete_croped(p)).grid(
+                Button(self.fram_list_pos, text=p, fg="blue", bg="red",height=3,width=25,command=lambda p=p: delete_croped(p)).grid(
                     row=start_row, column=1)
                 start_row = start_row+1
-            PB_saveNewModelJson = Button(self.fram_list_pos, text="SAVE JSON", fg="yellow", bg="green", command=self.save_newJson_processing).grid(
+            PB_saveNewModelJson = Button(self.fram_list_pos, text="SAVE JSON", fg="yellow", bg="green",height=3,width=25, command=self.save_newJson_processing).grid(
                 row=start_row, column=0)
 
         def delete_croped(data):
@@ -235,7 +235,8 @@ class AddModel:
             # show list for component
             show_list_position()
             # show picture
-            resize_image = cv2.resize(show, (640, 480))
+        
+            resize_image = cv2.resize(show, (self.screen_w, self.screen_h))
             resize_image = cv2.cvtColor(resize_image, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(resize_image)
             iago = ImageTk.PhotoImage(image)
@@ -244,17 +245,17 @@ class AddModel:
 
         data = StringVar()
         self.fram_in_get_master = Frame(self.master_add)
-        self.fram_in_get_master.place(x=700, y=150)
+        self.fram_in_get_master.place(x=1350, y=0)
         self.fram_list_pos = Frame(self.master_add)
-        self.fram_list_pos.place(x=700, y=250)
+        self.fram_list_pos.place(x=1350, y=100)
 
         Button(self.fram_in_get_master, text="POSITION", command=crop_position_operation,
-               fg="green", bg="gold", font=("Helvetica", 10)).grid(row=1, column=0)
+               fg="green", bg="gold",height=3,width=10, font=("Helvetica", 18)).grid(row=1, column=0)
         # ..................
         title_get_master = Label(self.frame1, text="IMAGE", font=(
-            "Ariel", 11), fg="yellow", bg="red",)
+            "Ariel", 30), fg="yellow", bg="red",)
         title_get_master.pack()
-        show_image = Label(self.frame1, width=640, height=480)
+        show_image = Label(self.frame1, width=self.screen_w, height=self.screen_h)
         show_image.pack()
 
         
@@ -315,7 +316,7 @@ class AddModel:
             self.on_cam = True
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-            cam.set(28,200)
+            cam.set(28,180)
             if self.newModel_dict["name"] == None:
                 pass
             else:
@@ -323,6 +324,7 @@ class AddModel:
                 cv2.setMouseCallback("image", mouse_crop)
                 while True:
                     check, frame = cam.read()
+                    frame = cv2.resize(frame,(self.screen_w,self.screen_h))
                     if check:
                         image = frame
                         self.oriImage = frame.copy()
@@ -356,7 +358,7 @@ class AddModel:
             # show list for component
             show_list_position()
 
-            resize_image = cv2.resize(show, (640, 480))
+            resize_image = cv2.resize(show, (self.screen_w, self.screen_h))
             resize_image = cv2.cvtColor(resize_image, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(resize_image)
             iago = ImageTk.PhotoImage(image)
@@ -373,12 +375,12 @@ class AddModel:
             list_pos = self.newModel_dict["codi_pos"]
             start_row = 2
             for p in list_pos:
-                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow",command=lambda p=p: self.each_learning(p)).grid(
+                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow",height=3,width=25,font=("Helvetica", 18),command=lambda p=p: self.each_learning(p)).grid(
                     row=start_row, column=0)
-                Button(self.fram_list_pos, text=p, fg="blue", bg="red", command=lambda p=p: delete_croped(p)).grid(
+                Button(self.fram_list_pos, text=p, fg="blue", bg="red",height=3,width=25,font=("Helvetica", 18),command=lambda p=p: delete_croped(p)).grid(
                     row=start_row, column=1)
                 start_row = start_row+1
-            PB_saveNewModelJson = Button(self.fram_list_pos, text="SAVE JSON", fg="yellow", bg="green", command=self.save_newJson).grid(
+            PB_saveNewModelJson = Button(self.fram_list_pos, text="SAVE JSON", fg="yellow", bg="green",height=3,width=25,command=self.save_newJson).grid(
                 row=start_row, column=0)
 
         def delete_croped(data):
@@ -393,7 +395,7 @@ class AddModel:
             # show list for component
             show_list_position()
             # show picture
-            resize_image = cv2.resize(show, (640, 480))
+            resize_image = cv2.resize(show, (self.screen_w, self.screen_h))
             resize_image = cv2.cvtColor(resize_image, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(resize_image)
             iago = ImageTk.PhotoImage(image)
@@ -403,25 +405,24 @@ class AddModel:
        # entry new name model
         data = StringVar()
         self.fram_in_get_master = Frame(self.master_add)
-        self.fram_in_get_master.place(x=700, y=150)
+        self.fram_in_get_master.place(x=1200, y=0)
         self.fram_list_pos = Frame(self.master_add)
-        self.fram_list_pos.place(x=700, y=250)
+        self.fram_list_pos.place(x=1200, y=100)
 
         
         Button(self.fram_in_get_master, text="POSITION", command=crop_position_operation,
-               fg="green", bg="gold", font=("Helvetica", 10)).grid(row=1, column=0)
+               fg="green", bg="gold",height=3,width=10,font=("Helvetica", 18)).grid(row=1, column=0)
 
         # ..................
 
         title_get_master = Label(self.frame1, text="IMAGE", font=(
-            "Ariel", 11), fg="yellow", bg="red",)
+            "Ariel", 30), fg="yellow", bg="red",)
         title_get_master.pack()
-        show_image = Label(self.frame1, width=640, height=480)
+        show_image = Label(self.frame1, width=self.screen_w, height=self.screen_h)
         show_image.pack()
 
 # Buton learning
     
-
     def each_learning(self,data):
         each_learning = EachLearning(self.master_add,data)
     

@@ -20,32 +20,38 @@ class Operation:
     def __init__(self, master):
         self.master_op = master
         self.master_op.title("Operation page auto")
+        self.screen_w = 1200
+        self.screen_h = 850
         # size of windown and position start
-        self.master_op.geometry("1280x720+0+0")
+        self.master_op.geometry("1920x1080+0+0")
         self.frame1 = Frame(self.master_op)
         self.frame1.place(x=0, y=150)
 
         self.frame_bar = Frame(self.master_op)
-        self.frame_bar.place(x=700,y=100)
+        self.frame_bar.place(x=1200,y=100)
 
-        self.show_image = Label(self.frame1, width=640, height=480)
+        self.show_image = Label(self.frame1, width=self.screen_w, height=self.screen_h)
         self.show_image.pack()
         self.readjson = {}
         self.model_dict = {}
         self.readjson_processing = {}
+        self.gpio_pi = 26
+        
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17,GPIO.OUT)
-        GPIO.output(17,False)
+        GPIO.setup(self.gpio_pi,GPIO.OUT)
+        GPIO.output(self.gpio_pi,False)
 
         Label(self.master_op, text="PROCESSING",fg="red",bg="yellow",font=("Arial",20)).place(x=200,y=110)
-        PB_exit = Button(self.master_op, text="EXIT", fg="red", bg="black", command=self.EXIT_operation).place(
-            x=1000, y=600, width=100, height=35)
+        PB_exit = Button(self.master_op, text="EXIT", font=("Arial",30),fg="red", bg="black", command=self.EXIT_operation).place(
+            x=1700, y=900, width=150, height=60)
         ######
         # main operation step
         self.read_json_file()
         self.model_init()
         self.show_bar()
         self.cam_main = cv2.VideoCapture(0)
+        self.cam_main.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+        self.cam_main.set(28,180)
         # self.cam_main.set(cv2.CAP_PROP_AUTOFOCUS, 1)
         self.Loop()
 
@@ -134,14 +140,14 @@ class Operation:
                                                 (pos[2], pos[3]), (0, 255, 0), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(img, str(
-                    round(score_100, 2)), (pos[0], pos[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    round(score_100, 2)), (pos[0], pos[1]), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 keep_ml.append("ok")
             else:
                 image_actual = cv2.rectangle(image_actual, (pos[0], pos[1]),
                                                 (pos[2], pos[3]), (0, 0, 255), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(img, str(
-                    round(score_100, 2)), (pos[0], pos[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    round(score_100, 2)), (pos[0], pos[1]), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 keep_ml.append("ng")
         # print("keep ml: ",keep_ml)
         
@@ -164,34 +170,35 @@ class Operation:
                                              (pos_pr[2], pos_pr[3]), (0, 255, 0), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(image_actual, str(
-                    round(score_pro, 2)), (pos_pr[0], pos_pr[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    round(score_pro,0)), (pos_pr[0]+20, pos_pr[1]), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 keep_result.append("ok")
             else:
                 image_actual = cv2.rectangle(image_actual, (pos_pr[0], pos_pr[1]),
                                              (pos_pr[2], pos_pr[3]), (0, 0, 255), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(image_actual, str(
-                    round(score_pro, 2)), (pos_pr[0], pos_pr[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    round(score_pro,0)), (pos_pr[0]+20, pos_pr[1]), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 keep_result.append("ng")
         # print("keep processing: ",keep_result)
         #output GPIO to PLC
         if not(("ng" in keep_ml) or ("ng" in keep_result)):
-            GPIO.output(17,True)
+            GPIO.output(self.gpio_pi,True)
         else:
-            GPIO.output(17,False)
+            GPIO.output(self.gpio_pi,False)
         return image_actual
 
     def Loop(self):
         def show_process_image():
             if self.cam_main.isOpened():
                 check, self.Frame_raw = self.cam_main.read()
+                self.Frame_raw = cv2.resize(self.Frame_raw,(self.screen_w,self.screen_h))
                 # print("check1: ", check)
                 if check:
                     self.Frame = self.Frame_raw.copy()
                     image_croped = self.draw_crop_func(
                         self.Frame)
 
-                    image_croped = cv2.resize(image_croped, (640, 480))
+                    image_croped = cv2.resize(image_croped, (self.screen_w, self.screen_h))
                     resize = cv2.cvtColor(image_croped, cv2.COLOR_BGR2RGB)
                     image = Image.fromarray(resize)
                     iago = ImageTk.PhotoImage(image)
@@ -229,20 +236,20 @@ class Operation:
             list_ml = self.readjson["codi_pos"]
             list_processing = self.readjson_processing["codi_pos"]
             for ml_pos in list_ml:
-                tag_ml = Label(self.frame_bar,text=str(ml_pos),fg="black",bg="gray").grid(row=start_row,column=0)
-                ml_bar = Scale(self.frame_bar, from_=0,to=100,length=300,orient=HORIZONTAL).grid(row=start_row,column=1)
+                tag_ml = Label(self.frame_bar,text=str(ml_pos),fg="black",bg="gray",font=('Times 24')).grid(row=start_row,column=0,padx=(50,0))
+                ml_bar = Scale(self.frame_bar, from_=0,to=100,length=300,width=60,font=('Times 24'),orient=HORIZONTAL).grid(row=start_row,column=1)
                 # ml_bar.set()
                 start_row = start_row + 1
             # add for separate section 
             start_row = start_row + 1
-            Label(self.frame_bar,text="Processing",bg="white").grid(row=start_row,column=0)
+            Label(self.frame_bar,text="Processing",bg="white",font=('Times 24')).grid(row=start_row,column=0)
             Label(self.frame_bar,text=" ").grid(row=start_row,column=1)
 
             for process_pos in list_processing:
                 start_row = start_row + 1
-                tag_process = Button(self.frame_bar,text=process_pos,fg="black",bg="white").grid(row=start_row,column=0)
+                tag_process = Button(self.frame_bar,text=process_pos,fg="black",bg="white",font=('Times 24')).grid(row=start_row,column=0,padx=(50,0))
                 name = str(process_pos)
-                self.pro_bar = Scale(self.frame_bar, from_=0,to=100,length=300,label=name,orient=HORIZONTAL)
+                self.pro_bar = Scale(self.frame_bar, from_=0,to=100,length=300,width=60,label=name,font=("Arial",30),orient=HORIZONTAL)
                 self.pro_bar.set(process_pos[4])
                 self.pro_bar.bind("<ButtonRelease-1>",self.updateValue)
                 
