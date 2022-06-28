@@ -1,6 +1,7 @@
 
 import cv2
 from tkinter import *               #
+
 from PIL import Image, ImageTk      #
 
 import os
@@ -106,7 +107,6 @@ class EachLearning:
 
     def model_learing(self):
         data_pos_string = ' '.join(map(str, self.data_pos))
-
         parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
         para = parent_dir + data_pos_string + "/"
         print("learning........." + data_pos_string)
@@ -217,8 +217,9 @@ class EachLearning:
         plt.legend(loc='upper right')
         plt.title('Training and Validation Loss')
         plt.show()
+
         print("finish save model")
-        return
+        return 
     
     def read_json_file(self):
         with open('NewData.json') as f:
@@ -315,9 +316,8 @@ class EachLearning:
 
         self.master_each.after(10, self.show_camera)
 
-    
+
     def EXIT(self):
         self.cam_learning.release()
         cv2.destroyAllWindows()
         self.master_each.destroy()
-

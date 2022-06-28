@@ -5,7 +5,7 @@ import numpy as np
 from tkinter import *               #
 
 from tkinter import filedialog
-from tkinter import ttk
+
 import tkinter.messagebox
 from PIL import Image, ImageTk      #
 
@@ -258,8 +258,6 @@ class AddModel:
         show_image = Label(self.frame1, width=self.screen_w, height=self.screen_h)
         show_image.pack()
 
-        
-
 # function for ML crop and save image 
     def get_master(self):
         try:
@@ -425,8 +423,7 @@ class AddModel:
     
     def each_learning(self,data):
         each_learning = EachLearning(self.master_add,data)
-    
-
+        
     def EXIT_AddModel(self):
         cv2.destroyAllWindows()
         self.master_add.destroy()

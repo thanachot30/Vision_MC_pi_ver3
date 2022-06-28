@@ -183,8 +183,13 @@ class Operation:
         #output GPIO to PLC
         if not(("ng" in keep_ml) or ("ng" in keep_result)):
             GPIO.output(self.gpio_pi,True)
+            #return output ok_ng all point evaliate
+            Label(self.master_op, text="OK",fg="yellow",bg="green",font=("Arial",30,"bold"),width=10,height=5).place(x=1250,y=650)
         else:
             GPIO.output(self.gpio_pi,False)
+            #return output ok_ng all point evaliate
+            Label(self.master_op,text="ALL POINT",fg="black",bg="gray",font=("Arial",20,"bold")).place(x=1280,y=610)
+            Label(self.master_op, text="NG",fg="yellow",bg="red",font=("Arial",30,"bold"),width=10,height=5).place(x=1250,y=650)
         return image_actual
 
     def Loop(self):
