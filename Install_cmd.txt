@@ -37,8 +37,16 @@ TO DO LIST
     5.3 bar set threshold gain of processing ok ng
     5.4 bar display percentage of result
     5.5 over all ok ng of result
-
-
+6.auto start
+    6.1 set "nano ~/.config/lxsession/LXDE-pi/autostart"
+    6.2 @lxpanel --profile LXDE-pi
+        @pcmanfm --desktop --profile LXDE-pi
+        @xscreensaver -no-splash
+        @lxterminal
+    6.3 set sudo nano /home/pi/.bashrc
+    6.4 echo Runing start
+        cd /home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/
+        python3 Class_home_user2.py
 
 
 6.extention
