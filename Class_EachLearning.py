@@ -3,6 +3,7 @@ import cv2
 from tkinter import *               #
 
 from PIL import Image, ImageTk      #
+from PIL import Image, ImageChops, ImageOps
 
 import os
 from os import listdir                  #
@@ -24,6 +25,8 @@ class EachLearning:
         self.data_pos = data
         self.screen_w = 1200
         self.screen_h = 850
+        self.count_image_ok = 0
+        self.count_image_ng = 0
         # self.oldFram1 = canvas1
         # self.oldFram2 = canvas2
         # self.olfFram3 = canvas3
@@ -47,7 +50,9 @@ class EachLearning:
 
         PB_ok = Button(self.fram_ok_ng, text="ADD OK", fg="black", bg="#9ACD32", command=self.get_ok
                        ).grid(row=0, column=0, ipadx=20, ipady=10)
-
+        
+        
+        
         Label(self.fram_ok_ng, text="  ").grid(
             row=1, column=0, ipadx=20, ipady=10)
         Label(self.fram_ok_ng, text="  ").grid(
@@ -56,6 +61,7 @@ class EachLearning:
             row=3, column=0, ipadx=20, ipady=10)
         PB_ng = Button(self.fram_ok_ng, text="ADD NG", fg="black", bg="#f47c60", command=self.get_ng
                        ).grid(row=4, column=0, ipadx=20, ipady=10)
+        
 
         Label(self.fram_ok_ng, text="  ").grid(
             row=5, column=0, ipadx=20, ipady=30)
@@ -111,8 +117,8 @@ class EachLearning:
         para = parent_dir + data_pos_string + "/"
         print("learning........." + data_pos_string)
         batch_size = 32
-        img_height = 50
-        img_width = 50
+        img_height = 100
+        img_width = 100
         import pathlib
         data_dir = pathlib.Path(para)
         # Create a dataset
@@ -176,7 +182,9 @@ class EachLearning:
             layers.MaxPooling2D(),
             # layers.Conv2D(64, 3, padding='same', activation='relu'),
             # layers.MaxPooling2D(),
-            layers.Dropout(0.2),
+            # layers.Conv2D(128, 3, padding='same', activation='relu'),
+            # layers.MaxPooling2D(),
+            # layers.Dropout(0.2),
             layers.Flatten(),
             layers.Dense(128, activation='relu'),
             layers.Dense(num_classes)
@@ -235,11 +243,20 @@ class EachLearning:
             pos = self.data_pos
             croping = image_actual[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
-            resize_crop = cv2.resize(croping, (50, 50))
+            resize_crop = cv2.resize(croping, (100, 100))
+
+            im_pil = Image.fromarray(resize_crop)
+            # im_pil = ImageOps.grayscale(im_pil)
+            resize_crop = ImageOps.equalize(im_pil, mask=None)
+            resize_crop = np.array(resize_crop)
+
             # part of access file
             data_pos_string = ' '.join(map(str, self.data_pos))
             path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"+ data_pos_string +"/ok/"
             len_actual_image = len(listdir(path_to_pos))
+
+            self.count_image_ok = len_actual_image+1
+
             path_save_image = path_to_pos + data_pos_string + "_ok" + str(len_actual_image+1) + ".jpg"
             print(path_save_image)
             cv2.imwrite(path_save_image, resize_crop)
@@ -247,11 +264,20 @@ class EachLearning:
             pos = self.data_pos
             croping = image_actual[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
-            resize_crop = cv2.resize(croping, (50, 50))
+            resize_crop = cv2.resize(croping, (100, 100))
+
+            im_pil = Image.fromarray(resize_crop)
+            # im_pil = ImageOps.grayscale(im_pil)
+            resize_crop = ImageOps.equalize(im_pil, mask=None)
+            resize_crop = np.array(resize_crop)
+
             # part of access file
             data_pos_string = ' '.join(map(str, self.data_pos))
             path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"+ data_pos_string +"/ng/"
             len_actual_image = len(listdir(path_to_pos))
+            
+            self.count_image_ng = len_actual_image+1
+
             path_save_image = path_to_pos + data_pos_string + "_ng"+ str(len_actual_image+1) + ".jpg"
             print(path_save_image)
             cv2.imwrite(path_save_image, resize_crop)
@@ -265,7 +291,9 @@ class EachLearning:
         # save and cut croping sub image position and pass argumant is raw image from actual image
         self.croping_image(self.Frame_raw, "ok")
         #
-        image = cv2.resize(ok_image, (200, 150))
+        text_item_ok = str(self.count_image_ok)+" Item"
+        count_image_ok = Label(self.fram_ok_ng,text=text_item_ok,fg="black",font=("Arial", 25)).grid(row=0, column=1, ipadx=20, ipady=10)
+        image = cv2.resize(ok_image, (200,200))
         resize = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = Image.fromarray(resize)
         iago = ImageTk.PhotoImage(image)
@@ -278,8 +306,9 @@ class EachLearning:
         ng_image = self.Frame
         # save and cut croping sub image position and pass argumant is raw image from actual image
         self.croping_image(self.Frame_raw, "ng")
-
-        image = cv2.resize(ng_image, (200, 150))
+        text_item_ng = str(self.count_image_ng)+ " Item"
+        count_image_ng = Label(self.fram_ok_ng,text=text_item_ng,fg="black",font=("Arial", 25)).grid(row=4, column=1, ipadx=20, ipady=10)
+        image = cv2.resize(ng_image, (200, 200))
         resize = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = Image.fromarray(resize)
         iago = ImageTk.PhotoImage(image)

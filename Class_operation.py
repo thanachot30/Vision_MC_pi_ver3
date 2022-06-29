@@ -41,9 +41,10 @@ class Operation:
         GPIO.setup(self.gpio_pi,GPIO.OUT)
         GPIO.output(self.gpio_pi,False)
 
-        Label(self.master_op, text="PROCESSING",fg="red",bg="yellow",font=("Arial",20)).place(x=200,y=110)
+        Label(self.master_op, text="PROCESSING: SCREEN 4",fg="red",bg="yellow",font=("Arial",20)).place(x=200,y=110)
         PB_exit = Button(self.master_op, text="EXIT", font=("Arial",30),fg="red", bg="black", command=self.EXIT_operation).place(
             x=1700, y=900, width=150, height=60)
+        Label(self.master_op,text="ALL POINT",fg="black",bg="gray",font=("Arial",20,"bold")).place(x=1280,y=610)
         ######
         # main operation step
         self.read_json_file()
@@ -97,8 +98,8 @@ class Operation:
         data_pos_string = ' '.join(map(str, pos))
         class_names = ["ng", "ok"]
         batch_size = 32
-        img_height = 50
-        img_width = 50
+        img_height = 100
+        img_width = 100
         image_actual = image_crop
         model = self.model_dict[data_pos_string]
         # image and preprocessing,size and type to array
@@ -127,14 +128,20 @@ class Operation:
             pos = self.readjson["codi_pos"][index_pos]
             croping = image_actual[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
-            resize_crop = cv2.resize(croping, (50, 50))
+            resize_crop = cv2.resize(croping, (100, 100))
+            #FUNCTION FOR EQUALIZE IMAGE
+            im_pil = Image.fromarray(resize_crop)
+            #im_pil = ImageOps.grayscale(im_pil)
+            resize_crop = ImageOps.equalize(im_pil, mask=None)
+            resize_crop = np.array(resize_crop)
+        
             # save actual image
             cv2.imwrite(r"/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_actual_image/{}.jpg".format(
                 "pos"+str(index_pos+1)), resize_crop)
             # send to func ML return to (okng,precentage)
             predict_result, score_100 = self.predict_ok_ng(
                 resize_crop, pos)
-
+            
             if predict_result == "ok":
                 image_actual = cv2.rectangle(image_actual, (pos[0], pos[1]),
                                                 (pos[2], pos[3]), (0, 255, 0), 2)
@@ -158,7 +165,8 @@ class Operation:
             pos_threshold = pos_pr[4]
             croping_pr = image_actual[int(pos_pr[1]):int(
                 pos_pr[3]), int(pos_pr[0]):int(pos_pr[2])]
-            resize_crop_pr = cv2.resize(croping_pr, (50, 50))
+            # resize_crop_pr = cv2.resize(croping_pr, (50, 50))
+            resize_crop_pr = croping_pr
             cv2.imwrite(r"/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_actual_processing/{}.jpg".format(
                 "pos"+str(index+1)), resize_crop_pr)
             # send to processing iamge function
@@ -188,7 +196,7 @@ class Operation:
         else:
             GPIO.output(self.gpio_pi,False)
             #return output ok_ng all point evaliate
-            Label(self.master_op,text="ALL POINT",fg="black",bg="gray",font=("Arial",20,"bold")).place(x=1280,y=610)
+            
             Label(self.master_op, text="NG",fg="yellow",bg="red",font=("Arial",30,"bold"),width=10,height=5).place(x=1250,y=650)
         return image_actual
 

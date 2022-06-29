@@ -90,7 +90,10 @@ class AddModel:
             image = self.image_save.copy()
             croping = image[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
-            resize_crop = cv2.resize(croping, (50, 50))
+
+            # resize_crop = cv2.resize(croping, (50, 50))
+            resize_crop = croping
+
             path_to_save = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/image" + \
                 str(index+1)+".jpg"
             print(path_to_save)
