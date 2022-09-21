@@ -6,13 +6,13 @@ from tkinter import filedialog
 from tkinter import ttk
 import tkinter.messagebox
 from PIL import Image, ImageTk      #
-# import class dependency.      
-from Class_AddModel import AddModel 
+# import class dependency.
+from Class_AddModel import AddModel
 from Class_operation import Operation
 from functools import partial       #
 
 
-class App: 
+class App:
     def __init__(self, master):
         self.master = master
         self.master.title("ANTROBOTICS IMG")
@@ -20,7 +20,7 @@ class App:
         # self.master.geometry("1280x720+0+0")
 
         self.value_start = 20
-        self.num_comp = 0                                                                 
+        self.num_comp = 0
 
         # Button Add and seting
         PB_add_model = Button(self.master, text="ADD", fg="black", font=16, bg="yellow", command=self.add_model
@@ -29,11 +29,12 @@ class App:
         # place(x=1050, y=550, width=150, height=35)
         PB_operation = Button(self.master, text="OPERATION", fg="black", font=16, bg="yellow", command=self.operation
                               ).pack()
-        PB_exit= Button(self.master, text="EXIT", fg="red", bg="black", command=self.exit).pack()
+        PB_exit = Button(self.master, text="EXIT", fg="red",
+                         bg="black", command=self.exit).pack()
         #   place(x=1050, y=600, width=150, height=35)
 
         # Operation home page# for Auto Mode
-        
+
         # operation = Operation(Toplevel(self.master))
 
     def show_process_bar(self, get):
@@ -72,6 +73,7 @@ class App:
     def exit(self):
         cv2.destroyAllWindows()
         self.master.destroy()
+
 
 def main():
     root = Tk()

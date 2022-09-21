@@ -17,8 +17,9 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 ##########
 
+
 class EachLearning:
-    def __init__(self, master,data):
+    def __init__(self, master, data):
         self.master_each = Toplevel(master)
         self.data_pos = data
         # self.oldFram1 = canvas1
@@ -76,7 +77,7 @@ class EachLearning:
 
         # init read json file for get position crop
         # Operation step
-        print("data pos: ",self.data_pos)
+        print("data pos: ", self.data_pos)
         self.read_json_file()
         self.mkdir_EachPos()
         self.cam_learning = cv2.VideoCapture(0)
@@ -86,7 +87,7 @@ class EachLearning:
         try:
             sub_folder = ["ok", "ng"]
             directory = "pos"
-            parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
+            parent_dir = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/"
             data_pos_string = ' '.join(map(str, self.data_pos))
             path = os.path.join(parent_dir, data_pos_string)
             os.mkdir(path)
@@ -105,7 +106,7 @@ class EachLearning:
     def model_learing(self):
         data_pos_string = ' '.join(map(str, self.data_pos))
 
-        parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
+        parent_dir = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/"
         para = parent_dir + data_pos_string + "/"
         print("learning........." + data_pos_string)
         batch_size = 32
@@ -145,9 +146,9 @@ class EachLearning:
         data_augmentation = keras.Sequential(
             [
                 layers.RandomFlip("horizontal",
-                                    input_shape=(img_height,
-                                                img_width,
-                                                3)),
+                                  input_shape=(img_height,
+                                               img_width,
+                                               3)),
                 layers.RandomRotation(0.1),
                 layers.RandomZoom(0.1),
             ]
@@ -180,11 +181,11 @@ class EachLearning:
             layers.Dense(num_classes)
         ])
         model.compile(optimizer='adam',
-                        loss=tf.keras.losses.SparseCategoricalCrossentropy(
-                            from_logits=True),
-                        metrics=['accuracy'])
+                      loss=tf.keras.losses.SparseCategoricalCrossentropy(
+                          from_logits=True),
+                      metrics=['accuracy'])
         # Train the model
-        epochs = 10
+        epochs = 18
         history = model.fit(
             train_ds,
             validation_data=val_ds,
@@ -212,7 +213,8 @@ class EachLearning:
         plt.legend(loc='upper right')
         plt.title('Training and Validation Loss')
         plt.show()
-        save_ml_path = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/" + data_pos_string +".h5"
+        save_ml_path = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_save_ml/" + \
+            data_pos_string + ".h5"
         model.save(save_ml_path)
         print("finish save model")
         return
@@ -226,7 +228,7 @@ class EachLearning:
         image_actual = img
         # parent_dir = "D:/p_ARM\ANTROBOTICS_VISION_MC_SMALL_3/Vision_mc_ver3/data_new_model/"
         # file_list = listdir(parent_dir)
-           # part of crop image
+        # part of crop image
         if state == "ok":
             pos = self.data_pos
             croping = image_actual[int(pos[1]):int(
@@ -234,9 +236,11 @@ class EachLearning:
             resize_crop = cv2.resize(croping, (50, 50))
             # part of access file
             data_pos_string = ' '.join(map(str, self.data_pos))
-            path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"+ data_pos_string +"/ok/"
+            path_to_pos = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/" + \
+                data_pos_string + "/ok/"
             len_actual_image = len(listdir(path_to_pos))
-            path_save_image = path_to_pos + data_pos_string + "_ok" + str(len_actual_image+1) + ".jpg"
+            path_save_image = path_to_pos + data_pos_string + \
+                "_ok" + str(len_actual_image+1) + ".jpg"
             print(path_save_image)
             cv2.imwrite(path_save_image, resize_crop)
         elif state == "ng":
@@ -246,9 +250,11 @@ class EachLearning:
             resize_crop = cv2.resize(croping, (50, 50))
             # part of access file
             data_pos_string = ' '.join(map(str, self.data_pos))
-            path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"+ data_pos_string +"/ng/"
+            path_to_pos = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/" + \
+                data_pos_string + "/ng/"
             len_actual_image = len(listdir(path_to_pos))
-            path_save_image = path_to_pos + data_pos_string + "_ng"+ str(len_actual_image+1) + ".jpg"
+            path_save_image = path_to_pos + data_pos_string + \
+                "_ng" + str(len_actual_image+1) + ".jpg"
             print(path_save_image)
             cv2.imwrite(path_save_image, resize_crop)
         else:
@@ -310,9 +316,7 @@ class EachLearning:
 
         self.master_each.after(10, self.show_camera)
 
-    
     def EXIT(self):
         self.cam_learning.release()
         cv2.destroyAllWindows()
         self.master_each.destroy()
-

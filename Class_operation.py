@@ -10,11 +10,11 @@ from tkinter import ttk
 from PIL import Image, ImageTk      #
 
 # import class dependency
-import RPi.GPIO as GPIO
 import time
 import json
 
 from os import listdir
+
 
 class Operation:
     def __init__(self, master):
@@ -26,18 +26,16 @@ class Operation:
         self.frame1.place(x=0, y=150)
 
         self.frame_bar = Frame(self.master_op)
-        self.frame_bar.place(x=700,y=100)
+        self.frame_bar.place(x=700, y=100)
 
         self.show_image = Label(self.frame1, width=640, height=480)
         self.show_image.pack()
         self.readjson = {}
         self.model_dict = {}
         self.readjson_processing = {}
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17,GPIO.OUT)
-        GPIO.output(17,False)
 
-        Label(self.master_op, text="PROCESSING",fg="red",bg="yellow",font=("Arial",20)).place(x=200,y=110)
+        Label(self.master_op, text="PROCESSING", fg="red",
+              bg="yellow", font=("Arial", 20)).place(x=200, y=110)
         PB_exit = Button(self.master_op, text="EXIT", fg="red", bg="black", command=self.EXIT_operation).place(
             x=1000, y=600, width=100, height=35)
         ######
@@ -52,13 +50,14 @@ class Operation:
     def model_init(self):
         for ml_list in self.readjson["codi_pos"]:
             data_pos_string = ' '.join(map(str, ml_list))
-            parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/"
-            path_model = parent_dir+ data_pos_string +".h5"
+            parent_dir = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_save_ml/"
+            path_model = parent_dir + data_pos_string + ".h5"
             load_model = tf.keras.models.load_model(path_model)
             self.model_dict[data_pos_string] = load_model
             print("init model: "+str(data_pos_string))
 
         return
+
     def rmsdiff(self, im1, im2):
         """Calculates the root mean square error (RSME) between two images"""
         errors = np.asarray(ImageChops.difference(im1, im2)) / 255
@@ -66,7 +65,7 @@ class Operation:
 
     def processing_ok_ng(self, image_crop, index_pos, threshold):
         class_names = ["ng", "ok"]
-        path_read_image_master = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/"
+        path_read_image_master = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_processing/"
         #
         image_actual = image_crop
         index = index_pos+1
@@ -84,10 +83,10 @@ class Operation:
         # im_pil.save("/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/hist_actual"+str(index)+".jpg")
         # add rmsdiff root mean sqe error
         result = self.rmsdiff(master_img, im_pil)
-        resual = 100 -(result*100)
+        resual = 100 - (result*100)
         return "ok" if resual >= threshold_img else "ng", resual
-    
-    def predict_ok_ng(self,image_crop, pos):
+
+    def predict_ok_ng(self, image_crop, pos):
         data_pos_string = ' '.join(map(str, pos))
         class_names = ["ng", "ok"]
         batch_size = 32
@@ -115,7 +114,7 @@ class Operation:
     def draw_crop_func(self, img):
         keep_result = []
         keep_ml = []
-        image_actual = img  
+        image_actual = img
         # loop for ML
         for index_pos in range(len(self.readjson["codi_pos"])):
             pos = self.readjson["codi_pos"][index_pos]
@@ -123,37 +122,39 @@ class Operation:
                 pos[3]), int(pos[0]):int(pos[2])]
             resize_crop = cv2.resize(croping, (50, 50))
             # save actual image
-            cv2.imwrite(r"/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_actual_image/{}.jpg".format(
+            cv2.imwrite(r"D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_actual_image/{}.jpg".format(
                 "pos"+str(index_pos+1)), resize_crop)
             # send to func ML return to (okng,precentage)
             predict_result, score_100 = self.predict_ok_ng(
                 resize_crop, pos)
 
+            print(predict_result, score_100)
+
             if predict_result == "ok":
                 image_actual = cv2.rectangle(image_actual, (pos[0], pos[1]),
-                                                (pos[2], pos[3]), (0, 255, 0), 2)
+                                             (pos[2], pos[3]), (0, 255, 0), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(img, str(
                     round(score_100, 2)), (pos[0], pos[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
                 keep_ml.append("ok")
             else:
                 image_actual = cv2.rectangle(image_actual, (pos[0], pos[1]),
-                                                (pos[2], pos[3]), (0, 0, 255), 2)
+                                             (pos[2], pos[3]), (0, 0, 255), 2)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(img, str(
                     round(score_100, 2)), (pos[0], pos[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
                 keep_ml.append("ng")
         # print("keep ml: ",keep_ml)
-        
-        #loop for image processing
+
+        # loop for image processing
         for index in range(len(self.readjson_processing["codi_pos"])):
             pos_pr = self.readjson_processing["codi_pos"][index]
-            # index 4 in pos_pr is threshold for ok,ng in iu slidebar adaptive 
+            # index 4 in pos_pr is threshold for ok,ng in iu slidebar adaptive
             pos_threshold = pos_pr[4]
             croping_pr = image_actual[int(pos_pr[1]):int(
                 pos_pr[3]), int(pos_pr[0]):int(pos_pr[2])]
             resize_crop_pr = cv2.resize(croping_pr, (50, 50))
-            cv2.imwrite(r"/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_actual_processing/{}.jpg".format(
+            cv2.imwrite(r"D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_actual_processing/{}.jpg".format(
                 "pos"+str(index+1)), resize_crop_pr)
             # send to processing iamge function
             result_processing, score_pro = self.processing_ok_ng(
@@ -174,11 +175,11 @@ class Operation:
                     round(score_pro, 2)), (pos_pr[0], pos_pr[1]), font, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
                 keep_result.append("ng")
         # print("keep processing: ",keep_result)
-        #output GPIO to PLC
+        # output GPIO to PLC
         if not(("ng" in keep_ml) or ("ng" in keep_result)):
-            GPIO.output(17,True)
+            pass
         else:
-            GPIO.output(17,False)
+            pass
         return image_actual
 
     def Loop(self):
@@ -225,51 +226,57 @@ class Operation:
         return
 
     def show_bar(self):
-            start_row = 2
-            list_ml = self.readjson["codi_pos"]
-            list_processing = self.readjson_processing["codi_pos"]
-            for ml_pos in list_ml:
-                tag_ml = Label(self.frame_bar,text=str(ml_pos),fg="black",bg="gray").grid(row=start_row,column=0)
-                ml_bar = Scale(self.frame_bar, from_=0,to=100,length=300,orient=HORIZONTAL).grid(row=start_row,column=1)
-                # ml_bar.set()
-                start_row = start_row + 1
-            # add for separate section 
+        start_row = 2
+        list_ml = self.readjson["codi_pos"]
+        list_processing = self.readjson_processing["codi_pos"]
+        for ml_pos in list_ml:
+            tag_ml = Label(self.frame_bar, text=str(ml_pos),
+                           fg="black", bg="gray").grid(row=start_row, column=0)
+            ml_bar = Scale(self.frame_bar, from_=0, to=100, length=300,
+                           orient=HORIZONTAL).grid(row=start_row, column=1)
+            # ml_bar.set()
             start_row = start_row + 1
-            Label(self.frame_bar,text="Processing",bg="white").grid(row=start_row,column=0)
-            Label(self.frame_bar,text=" ").grid(row=start_row,column=1)
+        # add for separate section
+        start_row = start_row + 1
+        Label(self.frame_bar, text="Processing",
+              bg="white").grid(row=start_row, column=0)
+        Label(self.frame_bar, text=" ").grid(row=start_row, column=1)
 
-            for process_pos in list_processing:
-                start_row = start_row + 1
-                tag_process = Button(self.frame_bar,text=process_pos,fg="black",bg="white").grid(row=start_row,column=0)
-                name = str(process_pos)
-                self.pro_bar = Scale(self.frame_bar, from_=0,to=100,length=300,label=name,orient=HORIZONTAL)
-                self.pro_bar.set(process_pos[4])
-                self.pro_bar.bind("<ButtonRelease-1>",self.updateValue)
-                
-                self.pro_bar.grid(row=start_row,column=1)
+        for process_pos in list_processing:
+            start_row = start_row + 1
+            tag_process = Button(self.frame_bar, text=process_pos,
+                                 fg="black", bg="white").grid(row=start_row, column=0)
+            name = str(process_pos)
+            self.pro_bar = Scale(
+                self.frame_bar, from_=0, to=100, length=300, label=name, orient=HORIZONTAL)
+            self.pro_bar.set(process_pos[4])
+            self.pro_bar.bind("<ButtonRelease-1>", self.updateValue)
 
-    def updateValue(self,event):
+            self.pro_bar.grid(row=start_row, column=1)
+
+    def updateValue(self, event):
         import ast
         w = event.widget
         if isinstance(w, Scale):
             getScale = w.get()
-            getScaleLabel = w.cget("label") 
+            getScaleLabel = w.cget("label")
             # print(w.get())
-            print("slide:",w.cget("label"))
+            print("slide:", w.cget("label"))
             # change index 4 adjust threshold in self.readjson_processing["codi_pos"]
-                # convert string list to int list
+            # convert string list to int list
             getScaleLabel = ast.literal_eval(getScaleLabel)
-            print("getScaleLabel:",getScaleLabel)
-            find_index = self.readjson_processing["codi_pos"].index(getScaleLabel)
+            print("getScaleLabel:", getScaleLabel)
+            find_index = self.readjson_processing["codi_pos"].index(
+                getScaleLabel)
             # print(find_index)
             # next to edit
             listEdit = self.readjson_processing["codi_pos"][find_index]
             listEdit[4] = int(getScale)
-            print("listedit: ",listEdit)
+            print("listedit: ", listEdit)
 
         # save json update json file
         with open('NewDataProcessing.json', 'w') as json_file_update:
-        # เขียน Python Dict ลงในไฟล์ NewDataProcessing.json
+            # เขียน Python Dict ลงในไฟล์ NewDataProcessing.json
             json.dump(self.readjson_processing, json_file_update)
         # go to read json
         self.read_json_file()
@@ -279,4 +286,3 @@ class Operation:
     def EXIT_operation(self):
         self.master_op.destroy()
         self.cam_main.release()
-

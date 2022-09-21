@@ -71,13 +71,13 @@ class Learning:
         self.read_json_file()
         self.mkdir_pos()
         self.cam_learning = cv2.VideoCapture(0)
-        
+
         self.show_camera()
 
     def mkdir_pos(self):
         sub_folder = ["ok", "ng"]
         directory = "pos"
-        parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
+        parent_dir = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/"
         for pos in range(len(self.ReadnewModel_dict["codi_pos"])):
             directory_pos = directory+str(pos+1)
             path = os.path.join(parent_dir, directory_pos)
@@ -95,7 +95,7 @@ class Learning:
                 os.mkdir(path_sub)
 
     def model_learing(self):
-        parent_dir = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/"
+        parent_dir = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/"
         file_list = listdir(parent_dir)
         print(file_list)
         for j in file_list:
@@ -207,7 +207,7 @@ class Learning:
             plt.legend(loc='upper right')
             plt.title('Training and Validation Loss')
             plt.show()
-            save_ml_path = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_save_ml/model_" + \
+            save_ml_path = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_save_ml/model_" + \
                 str(j)+".h5"
             model.save(save_ml_path)
             print("finish save model")
@@ -230,7 +230,7 @@ class Learning:
                     pos[3]), int(pos[0]):int(pos[2])]
                 resize_crop = cv2.resize(croping, (50, 50))
                 # part of access file
-                path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/pos" + \
+                path_to_pos = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/pos" + \
                     str(index_pos+1)+"/ok/"
                 len_actual_image = len(listdir(path_to_pos))
                 path_save_image = path_to_pos+"pos" + \
@@ -243,7 +243,7 @@ class Learning:
                     pos[3]), int(pos[0]):int(pos[2])]
                 resize_crop = cv2.resize(croping, (50, 50))
                 # part of access file
-                path_to_pos = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_model/pos" + \
+                path_to_pos = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_model/pos" + \
                     str(index_pos+1)+"/ng/"
                 len_actual_image = len(listdir(path_to_pos))
                 path_save_image = path_to_pos+"pos" + \

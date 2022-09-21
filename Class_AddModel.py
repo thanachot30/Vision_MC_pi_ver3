@@ -61,6 +61,7 @@ class AddModel:
         self.frame1.place(x=0, y=150)
         # Opration
         self.read_json_file()
+
     def read_json_file(self):
         with open('NewData.json') as f:
             self.newModel_dict = json.load(f)
@@ -76,6 +77,7 @@ class AddModel:
         with open('NewData.json', 'w') as json_file:
             # เขียน Python Dict ลงในไฟล์ NewData.json
             json.dump(self.newModel_dict, json_file)
+
     def save_newJson_processing(self):
         print("save json processing: ", self.newProcessing_dict["codi_pos"])
         with open('NewDataProcessing.json', 'w') as json_file_process:
@@ -89,12 +91,13 @@ class AddModel:
             croping = image[int(pos[1]):int(
                 pos[3]), int(pos[0]):int(pos[2])]
             resize_crop = cv2.resize(croping, (50, 50))
-            path_to_save = "/home/pi/Documents/Vision_MC_pi/Vision_MC_pi_ver3/data_new_processing/image" + \
+            path_to_save = "D:/p_ARM/AntVisionSmall_piv3/Vision_MC_pi_ver3/data_new_processing/image" + \
                 str(index+1)+".jpg"
             print(path_to_save)
             cv2.imwrite(path_to_save, resize_crop)
         return
-#function for only Image processing
+# function for only Image processing
+
     def get_processing(self):
         try:
             for widget in self.frame1.winfo_children():
@@ -133,7 +136,7 @@ class AddModel:
                     # cv2.waitKey(1000)
                     # cv2.destroyWindow("Cropped")
                     self.on_cam = False
-                    print("gu crop")            
+                    print("gu crop")
             return
 
         def draw_crop_func(pos, img):
@@ -144,14 +147,14 @@ class AddModel:
                                              (i[2], i[3]), (0, 255, 0), 2)
             return image_croped
 
-        def crop_position_operation():            
+        def crop_position_operation():
             # camera config
             self.on_cam = True
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-            cam.set(28,200)
+            cam.set(28, 200)
             # set mouse call back
-            
+
             if self.newProcessing_dict["name"] == None:
                 pass
             else:
@@ -163,33 +166,33 @@ class AddModel:
                         image = frame.copy()
                         self.oriImage = frame.copy()
                         self.image_save = frame.copy()
-                        self.image_copy = frame.copy()  
+                        self.image_copy = frame.copy()
                         if not self.cropping:
                             cv2.imshow("image", image)
                         elif self.cropping:
                             cv2.rectangle(self.image_copy, (self.x_start, self.y_start),
                                           (self.x_end, self.y_end), (0, 0, 255), 2)
                             cv2.imshow("image", self.image_copy)
-#fuck
+# fuck
                         k = cv2.waitKey(1)
                         if self.on_cam == False:
                             break
                         elif k == ord('q'):
                             break
-                        
+
                     # add crop position to dict model
                     else:
                         print("check:", check)
                         cam = cv2.VideoCapture(0)
                         cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-                        cam.set(28,200)
+                        cam.set(28, 200)
 
                 cv2.destroyAllWindows()
                 cam.release()
                 # save crop codinate position
                 self.newProcessing_dict["codi_pos"].append(
-                    [self.x_start, self.y_start, self.x_end, self.y_end,70])
-                
+                    [self.x_start, self.y_start, self.x_end, self.y_end, 70])
+
             # show image croped on GUI
             self.show = draw_crop_func(
                 self.newProcessing_dict["codi_pos"], self.image_save.copy())
@@ -257,9 +260,10 @@ class AddModel:
         show_image = Label(self.frame1, width=640, height=480)
         show_image.pack()
 
-        
 
-# function for ML crop and save image 
+# function for ML crop and save image
+
+
     def get_master(self):
         try:
             for widget in self.frame1.winfo_children():
@@ -315,7 +319,7 @@ class AddModel:
             self.on_cam = True
             cam = cv2.VideoCapture(0)
             cam.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-            cam.set(28,200)
+            cam.set(28, 200)
             if self.newModel_dict["name"] == None:
                 pass
             else:
@@ -373,7 +377,7 @@ class AddModel:
             list_pos = self.newModel_dict["codi_pos"]
             start_row = 2
             for p in list_pos:
-                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow",command=lambda p=p: self.each_learning(p)).grid(
+                Button(self.fram_list_pos, text=p, fg="blue", bg="yellow", command=lambda p=p: self.each_learning(p)).grid(
                     row=start_row, column=0)
                 Button(self.fram_list_pos, text=p, fg="blue", bg="red", command=lambda p=p: delete_croped(p)).grid(
                     row=start_row, column=1)
@@ -407,7 +411,6 @@ class AddModel:
         self.fram_list_pos = Frame(self.master_add)
         self.fram_list_pos.place(x=700, y=250)
 
-        
         Button(self.fram_in_get_master, text="POSITION", command=crop_position_operation,
                fg="green", bg="gold", font=("Helvetica", 10)).grid(row=1, column=0)
 
@@ -420,11 +423,9 @@ class AddModel:
         show_image.pack()
 
 # Buton learning
-    
 
-    def each_learning(self,data):
-        each_learning = EachLearning(self.master_add,data)
-    
+    def each_learning(self, data):
+        each_learning = EachLearning(self.master_add, data)
 
     def EXIT_AddModel(self):
         cv2.destroyAllWindows()
